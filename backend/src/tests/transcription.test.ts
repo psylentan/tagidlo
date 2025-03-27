@@ -7,6 +7,15 @@ const API_URL = 'http://localhost:4000/api/transcription/transcribe';
 
 async function testTranscription() {
   try {
+    // First, check if the server is running
+    try {
+      await axios.get('http://localhost:4000/health');
+      console.log('Server is running and healthy');
+    } catch (error) {
+      console.error('Server is not running or not responding. Please start the server first.');
+      return;
+    }
+
     // Create a test audio file path
     const testAudioPath = path.join(__dirname, '../../test-files/test-audio.webm');
     
@@ -31,20 +40,23 @@ async function testTranscription() {
     // Make the request
     const response = await axios.post(API_URL, formData, {
       headers: {
-        ...formData.getHeaders(),
-        'Content-Type': 'multipart/form-data'
+        ...formData.getHeaders()
       },
       maxContentLength: Infinity,
-      maxBodyLength: Infinity
+      maxBodyLength: Infinity,
+      timeout: 30000 // 30 seconds timeout
     });
 
     console.log('Transcription successful!');
-    console.log('Response:', response.data);
+    console.log('Response:', JSON.stringify(response.data, null, 2));
   } catch (error) {
     if (error instanceof AxiosError) {
       console.error('Transcription failed with status:', error.response?.status);
       console.error('Error response:', error.response?.data);
       console.error('Error message:', error.message);
+      if (error.code === 'ECONNREFUSED') {
+        console.error('Could not connect to server. Make sure the server is running on port 4000');
+      }
     } else {
       console.error('Transcription failed with error:', error);
     }

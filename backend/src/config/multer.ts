@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
 
 // File filter
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  const allowedTypes = process.env.ALLOWED_AUDIO_TYPES?.split(',') || ['audio/webm', 'audio/mp3', 'audio/wav'];
+  const allowedTypes = ['audio/webm', 'audio/mp3', 'audio/wav'];
   
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
@@ -24,12 +24,12 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
   }
 };
 
-// Create multer instance
+// Create multer upload instance
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: parseInt(process.env.MAX_FILE_SIZE || '5242880'), // 5MB default
+    fileSize: 25 * 1024 * 1024 // 25MB limit
   }
 });
 

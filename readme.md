@@ -1,110 +1,121 @@
-Sure! Here's a concise summary that you can use to describe the full project to **Cursor.AI**. It includes the **description**, **screens**, **tech stack**, **actions**, and **user flow** for the app.
+# SayIT - Quick Voice Recorder & Task Manager
 
----
+A web-based application that allows users to record voice notes, transcribe them into text, and create tasks directly in ClickUp. The tool leverages OpenAI Whisper for transcription and integrates seamlessly with ClickUp's API.
 
-### **Project Overview for Cursor.AI**
+## Features
 
-#### **Description**:
-The **Quick Voice Recorder & Task Manager** is a web-based application that allows users to record voice notes, transcribe them into text, and create tasks directly in **ClickUp**. The tool leverages **OpenAI Whisper** for transcription and integrates seamlessly with **ClickUp's API** to create tasks, assign them to teams, and attach audio recordings as references. The app simplifies task creation by allowing users to filter spaces, lists, and assignees via live text filters and automatically populates the task details using transcription data.
+- 🎙️ Voice Recording with 5-minute limit
+- 🔄 OpenAI Whisper Transcription
+- 📝 Automatic Task Creation in ClickUp
+- 👥 ClickUp Integration (Spaces, Lists, Assignees)
+- 🎨 Clean, Modern UI with Tailwind CSS
 
----
+## Tech Stack
 
-### **Screens in the App**:
+### Frontend
+- React.js with TypeScript
+- Vite for build tooling
+- Tailwind CSS for styling
+- Headless UI for accessible components
+- Axios for API requests
 
-1. **Main Screen (Recording)**:
-   - **Record Button**: Initiates voice recording.
-   - **Analyze Button**: Sends the recording to OpenAI Whisper for transcription.
-   - The user clicks to stop recording and sends the audio for analysis.
+### Backend
+- Node.js with Express
+- TypeScript for type safety
+- OpenAI Whisper API for transcription
+- ClickUp API for task management
+- Multer for file uploads
 
-2. **Task Creation Screen**:
-   - Displays the transcription after analysis.
-   - Fields auto-filled with transcription details: **task name**, **folder**, **assignee**, **task details**.
-   - **Live filters** to select spaces, lists, and assignees.
-   - **Edit Options**: The user can edit the task name, folder, assignee, and task details before submission.
-   - **Submit Button**: Sends the final task to ClickUp via the ClickUp API.
+## Project Structure
 
-3. **Login / Authentication Screen**:
-   - Users authenticate with **ClickUp** via OAuth 2.0 to obtain an API token.
+```
+sayit/
+├── frontend/                 # React frontend application
+│   ├── src/                 # Source files
+│   ├── public/              # Static assets
+│   └── package.json         # Frontend dependencies
+├── backend/                 # Express backend application
+│   ├── src/                # Source files
+│   ├── uploads/            # Audio file storage
+│   └── package.json        # Backend dependencies
+└── package.json            # Root package.json (workspaces)
+```
 
-4. **Settings Screen** (Optional):
-   - Manage ClickUp integration settings (disconnect or re-authenticate).
+## Getting Started
 
----
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
+- OpenAI API key
+- ClickUp API key
 
-### **Tech Stack**:
+### Installation
 
-- **Frontend**: 
-  - **React.js** for building the UI components.
-  - **Axios** for handling API requests to OpenAI and ClickUp.
-  - **CSS** or **Styled Components** for styling.
-  - **Service Worker** for PWA functionality (offline support).
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/sayit.git
+cd sayit
+```
 
-- **Backend**:
-  - **Node.js** with **Express.js** for handling backend requests.
-  - **OpenAI API** for transcribing audio (Whisper model).
-  - **ClickUp API** for task creation and interaction with ClickUp (spaces, lists, assignees).
+2. Install dependencies:
+```bash
+npm run install:all
+```
 
-- **Authentication**:
-  - **OAuth 2.0** for secure ClickUp authentication and token storage.
+3. Set up environment variables:
+```bash
+# In backend directory
+cp .env.example .env
+# Edit .env with your API keys and configuration
+```
 
-- **Database** (optional):
-  - **MongoDB** or **LocalStorage** (for caching lists of spaces, lists, and assignees).
+4. Start the development servers:
+```bash
+npm run dev
+```
 
----
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:4000
 
-### **Actions in the App**:
+## Development
 
-1. **Start Recording**: User clicks the **Record** button to start voice recording.
-2. **Stop Recording**: User clicks **Stop** to end the recording.
-3. **Analyze Recording**: The recording is sent to **OpenAI Whisper** for transcription.
-4. **Fetch Spaces**: Retrieve available **spaces** from the **ClickUp API**.
-5. **Fetch Lists**: Retrieve lists from a selected space in ClickUp.
-6. **Fetch Assignees**: Retrieve assignees from **ClickUp** based on team or task context.
-7. **Live Text Filtering**: Users can type and filter through **spaces**, **lists**, and **assignees** in real-time from the static list.
-8. **Populate Task Fields**: After transcription, fields like **task name**, **folder**, **assignee**, and **task details** are populated.
-9. **Edit Task Details**: User can manually edit the pre-filled task details before submission.
-10. **Submit Task**: Send the completed task with transcription and attachment (audio URL) to **ClickUp** via the **ClickUp API**.
+### Frontend Development
+```bash
+cd frontend
+npm run dev
+```
 
----
+### Backend Development
+```bash
+cd backend
+npm run dev
+```
 
-### **User Flow**:
+## API Endpoints
 
-1. **User Opens the App**:
-   - The user is presented with the **Main Screen** with the **Record** button.
-   
-2. **User Clicks "Record"**:
-   - The user begins recording their voice note.
-   
-3. **User Clicks "Stop"**:
-   - The recording is completed and stored temporarily on the server.
-   - The user then clicks the **Analyze** button.
+### Backend API
+- `POST /api/upload` - Upload audio file
+- `POST /api/transcribe` - Transcribe audio with Whisper
+- `GET /api/clickup/spaces` - Get ClickUp spaces
+- `GET /api/clickup/lists` - Get lists from space
+- `GET /api/clickup/assignees` - Get team members
+- `POST /api/tasks` - Create task in ClickUp
 
-4. **Transcription Process**:
-   - The voice recording is sent to the **OpenAI Whisper API** for transcription.
-   - Upon completion, the transcription text is returned.
+## Contributing
 
-5. **Task Creation**:
-   - The app uses **ClickUp API** to fetch **spaces**, **lists**, and **assignees** (if not already available).
-   - The transcription text is processed into structured data (task name, details, assignee, folder, etc.) via a custom prompt.
-   - The task creation form is pre-filled with the transcription data and the user can edit these fields if needed.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-6. **Attach Audio**:
-   - The audio file is uploaded to your server and a **URL** is attached to the task in **ClickUp**.
+## License
 
-7. **Submit Task to ClickUp**:
-   - The final task is submitted to **ClickUp**, with all the details (including transcription and attached audio file URL).
+This project is licensed under the ISC License - see the LICENSE file for details.
 
-8. **User Confirms**:
-   - The user confirms the task is created and opened in **ClickUp**.
+## Acknowledgments
 
----
-
-### **Conclusion**:
-
-This project involves building a web app that simplifies task creation in **ClickUp** by using voice input. The app will record, transcribe, and auto-populate task details, making it easier for users to manage tasks. The integration with **ClickUp API** allows seamless task creation, while **OpenAI Whisper API** handles transcription.
-
-The tech stack focuses on simplicity and scalability, utilizing **React.js** for the frontend, **Node.js/Express** for the backend, and **ClickUp** and **OpenAI APIs** for integration and transcription.
-
----
-
-This concise overview, along with the details of the screens, actions, and user flow, should give **Cursor.AI** a good foundation to start building the app step by step. Let me know if you need further refinements or additional details!
+- OpenAI for the Whisper API
+- ClickUp for their API
+- The React and Tailwind CSS communities

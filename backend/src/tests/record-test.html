@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Recording Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Audio Recording Test</h1>
+    <div class="controls">
+        <button id="startRecord">Start Recording</button>
+        <button id="stopRecord" disabled>Stop Recording</button>
+        <button id="transcribe" disabled>Transcribe</button>
+    </div>
+    <div id="status"></div>
+    <div id="result"></div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let audioBlob;
+
+        const startButton = document.getElementById('startRecord');
+        const stopButton = document.getElementById('stopRecord');
+        const transcribeButton = document.getElementById('transcribe');
+        const statusDiv = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
+
+        function updateStatus(message, isError = false) {
+            statusDiv.textContent = message;
+            statusDiv.className = isError ? 'error' : 'success';
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    updateStatus('Recording completed!');
+                    stopButton.disabled = true;
+                    transcribeButton.disabled = false;
+                };
+
+                mediaRecorder.start();
+                startButton.disabled = true;
+                stopButton.disabled = false;
+                updateStatus('Recording...');
+            } catch (error) {
+                updateStatus('Error accessing microphone: ' + error.message, true);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        async function transcribeAudio() {
+            try {
+                updateStatus('Sending audio for transcription...');
+                transcribeButton.disabled = true;
+
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'recording.webm');
+
+                const response = await fetch('http://localhost:4000/api/transcription/transcribe', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('Transcription successful!');
+                    resultDiv.innerHTML = `
+                        <h3>Transcription Result:</h3>
+                        <p>${data.data.text}</p>
+                    `;
+                } else {
+                    throw new Error(data.error || 'Transcription failed');
+                }
+            } catch (error) {
+                updateStatus('Error during transcription: ' + error.message, true);
+            } finally {
+                transcribeButton.disabled = false;
+            }
+        }
+
+        startButton.addEventListener('click', startRecording);
+        stopButton.addEventListener('click', stopRecording);
+        transcribeButton.addEventListener('click', transcribeAudio);
+    </script>
+</body>
+</html> 
