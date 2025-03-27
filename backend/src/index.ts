@@ -5,10 +5,17 @@ import path from 'path';
 
 // Import routes
 import audioRoutes from './routes/audioRoutes';
+import transcriptionRoutes from './routes/transcriptionRoutes';
 import { ensureDirectoryExists } from './utils/fileSystem';
 
 // Load environment variables
 dotenv.config();
+
+// Validate required environment variables
+if (!process.env.OPENAI_API_KEY) {
+  console.error('OPENAI_API_KEY is required but not set in environment variables');
+  process.exit(1);
+}
 
 // Create Express app
 const app = express();
@@ -33,6 +40,7 @@ app.use('/test-files', express.static(testFilesDir));
 
 // Routes
 app.use('/api/audio', audioRoutes);
+app.use('/api/transcription', transcriptionRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
