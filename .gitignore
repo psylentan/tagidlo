@@ -39,3 +39,4 @@ pnpm-debug.log*
 
 # Upload directory
 backend/uploads/ 
+node_modules

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Test Audio</title>
+</head>
+<body>
+    <h1>Generate Test Audio</h1>
+    <button id="start">Start Recording</button>
+    <button id="stop" disabled>Stop Recording</button>
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+
+        document.getElementById('start').addEventListener('click', async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const url = URL.createObjectURL(audioBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'test-audio.webm';
+                a.click();
+                URL.revokeObjectURL(url);
+            };
+
+            mediaRecorder.start();
+            document.getElementById('start').disabled = true;
+            document.getElementById('stop').disabled = false;
+        });
+
+        document.getElementById('stop').addEventListener('click', () => {
+            mediaRecorder.stop();
+            document.getElementById('start').disabled = false;
+            document.getElementById('stop').disabled = true;
+        });
+    </script>
+</body>
+</html> 
